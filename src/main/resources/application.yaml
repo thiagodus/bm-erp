@@ -1,3 +1,15 @@
 spring:
   application:
     name: erp
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bm_erp
+    username: postgres
+    password: postgres
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true
