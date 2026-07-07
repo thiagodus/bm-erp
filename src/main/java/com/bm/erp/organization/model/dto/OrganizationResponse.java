@@ -3,18 +3,10 @@ package com.bm.erp.organization.model.dto;
 public record OrganizationResponse(
 
         String legalName,
-
-
         String tradeName,
-
-
         String cnpj,
-
-
         String email,
-
         String phone,
-
         String street,
         String city,
         String state,
