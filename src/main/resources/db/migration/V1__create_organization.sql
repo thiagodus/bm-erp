@@ -7,12 +7,12 @@ CREATE TABLE organization
     email varchar(50) NOT NULL,
     phone varchar(20),
     created_at TIMESTAMP,
-    updated_at TIMESTAMP.
+    updated_at TIMESTAMP,
     street varchar(100),
-    city varchar(50).
+    city varchar(50),
     state varchar(2),
     zip_code varchar(10),
     country varchar(2),
-    active BOOLEAN NOT NULL DEFAULT TRUE
+    active BOOLEAN NOT NULL DEFAULT TRUE,
     CONSTRAINT uk_organization_cnpj UNIQUE (cnpj)
 )

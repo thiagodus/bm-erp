@@ -1,9 +1,7 @@
-package com.bm.erp.organization.dto;
+package com.bm.erp.organization.model.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-
-import java.time.Instant;
 
 public record OrganizationRequest(
         @NotBlank
