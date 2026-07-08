@@ -1,5 +1,7 @@
 package com.bm.erp.organization.model.dto;
 
+import java.util.Optional;
+
 public record OrganizationResponse(
 
         String legalName,
@@ -13,6 +15,7 @@ public record OrganizationResponse(
         String zipCode,
         String country
 ) {
+
 
 
 }

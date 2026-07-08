@@ -7,10 +7,7 @@ import com.bm.erp.organization.service.OrganizationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/organization")
@@ -22,6 +19,12 @@ public class OrganizationController {
     @PutMapping
     public ResponseEntity<OrganizationResponse> save(@Valid @RequestBody OrganizationRequest organizationRequest){
         OrganizationResponse response = organizationService.save(organizationRequest);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<OrganizationResponse> getOrganization(){
+        OrganizationResponse response = organizationService.getOrganization();
         return ResponseEntity.ok(response);
     }
 }

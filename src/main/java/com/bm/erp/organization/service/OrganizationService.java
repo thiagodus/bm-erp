@@ -1,5 +1,6 @@
 package com.bm.erp.organization.service;
 
+import com.bm.erp.organization.exception.OrganizationNotFoundException;
 import com.bm.erp.organization.mapper.OrganizationMapper;
 import com.bm.erp.organization.model.Organization;
 import com.bm.erp.organization.model.dto.OrganizationRequest;
@@ -41,6 +42,13 @@ public class OrganizationService {
 
         return  organizationMapper.toResponse(savedOrganization);
 
+
+    }
+
+    public OrganizationResponse getOrganization() {
+        return organizationRepository.findFirstBy()
+                .map(organizationMapper::toResponse)
+                .orElseThrow(OrganizationNotFoundException::new);
 
     }
 }
