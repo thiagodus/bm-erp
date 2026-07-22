@@ -1,0 +1,2 @@
+ALTER TABLE organization
+ALTER COLUMN email TYPE VARCHAR(255);
