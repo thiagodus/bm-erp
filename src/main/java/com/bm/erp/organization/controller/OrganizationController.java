@@ -1,8 +1,7 @@
 package com.bm.erp.organization.controller;
 
-import com.bm.erp.organization.model.Organization;
-import com.bm.erp.organization.model.dto.OrganizationRequest;
-import com.bm.erp.organization.model.dto.OrganizationResponse;
+import com.bm.erp.organization.dto.OrganizationRequest;
+import com.bm.erp.organization.dto.OrganizationResponse;
 import com.bm.erp.organization.service.OrganizationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

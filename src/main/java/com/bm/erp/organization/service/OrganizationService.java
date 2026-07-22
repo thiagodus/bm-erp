@@ -2,11 +2,10 @@ package com.bm.erp.organization.service;
 
 import com.bm.erp.organization.exception.OrganizationNotFoundException;
 import com.bm.erp.organization.mapper.OrganizationMapper;
-import com.bm.erp.organization.model.Organization;
-import com.bm.erp.organization.model.dto.OrganizationRequest;
-import com.bm.erp.organization.model.dto.OrganizationResponse;
+import com.bm.erp.organization.entity.Organization;
+import com.bm.erp.organization.dto.OrganizationRequest;
+import com.bm.erp.organization.dto.OrganizationResponse;
 import com.bm.erp.organization.repository.OrganizationRepository;
-import jakarta.validation.constraints.NotEmpty;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -34,9 +33,7 @@ public class OrganizationService {
 
         Organization organization = organizationMapper.toEntity(organizationRequest);
 
-        organization.setId(UUID.randomUUID());
         organization.setActive(true);
-        organization.setCreatedAt(Instant.now());
 
         var savedOrganization = organizationRepository.save(organization);
 

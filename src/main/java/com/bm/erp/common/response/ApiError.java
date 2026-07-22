@@ -1,4 +1,4 @@
-package com.bm.erp.common.exception;
+package com.bm.erp.common.response;
 
 import java.time.Instant;
 import java.util.List;

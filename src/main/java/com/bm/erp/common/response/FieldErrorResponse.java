@@ -1,4 +1,4 @@
-package com.bm.erp.common.exception;
+package com.bm.erp.common.response;
 
 public record FieldErrorResponse(
         String field,

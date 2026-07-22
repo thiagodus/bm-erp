@@ -1,4 +1,4 @@
-package com.bm.erp.organization.model.dto;
+package com.bm.erp.organization.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

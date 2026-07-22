@@ -1,6 +1,6 @@
 package com.bm.erp.organization.repository;
 
-import com.bm.erp.organization.model.Organization;
+import com.bm.erp.organization.entity.Organization;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

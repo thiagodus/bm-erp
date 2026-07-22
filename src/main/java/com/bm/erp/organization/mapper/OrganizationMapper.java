@@ -1,9 +1,9 @@
 package com.bm.erp.organization.mapper;
 
 
-import com.bm.erp.organization.model.Organization;
-import com.bm.erp.organization.model.dto.OrganizationRequest;
-import com.bm.erp.organization.model.dto.OrganizationResponse;
+import com.bm.erp.organization.entity.Organization;
+import com.bm.erp.organization.dto.OrganizationRequest;
+import com.bm.erp.organization.dto.OrganizationResponse;
 import org.springframework.stereotype.Component;
 
 @Component
