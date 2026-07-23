@@ -22,7 +22,7 @@ public class OrganizationController {
     }
 
     @GetMapping
-    public ResponseEntity<OrganizationResponse> getOrganization(){
+    public ResponseEntity<OrganizationResponse> get(){
         OrganizationResponse response = organizationService.getOrganization();
         return ResponseEntity.ok(response);
     }

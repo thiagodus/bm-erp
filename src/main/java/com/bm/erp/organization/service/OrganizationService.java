@@ -33,8 +33,6 @@ public class OrganizationService {
 
         Organization organization = organizationMapper.toEntity(organizationRequest);
 
-        organization.setActive(true);
-
         var savedOrganization = organizationRepository.save(organization);
 
         return  organizationMapper.toResponse(savedOrganization);
