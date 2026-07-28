@@ -21,6 +21,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Customer {
     @Id
+    @GeneratedValue
     private UUID id;
 
     @Enumerated(EnumType.STRING)
