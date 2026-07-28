@@ -1,0 +1,31 @@
+info:
+  name: post customer
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:8080/customer
+  body:
+    type: json
+    data: |-
+      {
+        "type": "INDIVIDUAL",
+        "name": "João da Silva",
+        "phone": "41999999999",
+        "document": null,
+        "email": "joao@email.com",
+        "street": "Rua Example, 123",
+        "city": "Curitiba",
+        "state": "PR",
+        "zipCode": "80000000",
+        "country": "BR",
+        "notes": "First customer"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

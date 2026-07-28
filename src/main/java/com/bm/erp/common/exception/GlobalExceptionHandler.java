@@ -2,6 +2,7 @@ package com.bm.erp.common.exception;
 
 import com.bm.erp.common.response.ApiError;
 import com.bm.erp.common.response.FieldErrorResponse;
+import com.bm.erp.customer.exception.CustomerNotFoundException;
 import com.bm.erp.organization.exception.OrganizationNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,17 @@ import java.time.Instant;
 public class GlobalExceptionHandler {
     @ExceptionHandler(OrganizationNotFoundException.class)
     public ResponseEntity<ApiError> handleOrganizationNotFound(OrganizationNotFoundException e, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiError(Instant.now(),
+                        HttpStatus.NOT_FOUND.value(),
+                        HttpStatus.NOT_FOUND.getReasonPhrase(),
+                        e.getMessage(),
+                        request.getRequestURI(),
+                        null));
+    }
+
+    @ExceptionHandler(CustomerNotFoundException.class)
+    public ResponseEntity<ApiError> handleCustomerNotFound(CustomerNotFoundException e, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ApiError(Instant.now(),
                         HttpStatus.NOT_FOUND.value(),
