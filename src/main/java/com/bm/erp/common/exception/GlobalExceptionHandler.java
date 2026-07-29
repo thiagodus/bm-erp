@@ -4,6 +4,7 @@ import com.bm.erp.common.response.ApiError;
 import com.bm.erp.common.response.FieldErrorResponse;
 import com.bm.erp.customer.exception.CustomerNotFoundException;
 import com.bm.erp.organization.exception.OrganizationNotFoundException;
+import com.bm.erp.product.exception.ProductNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,5 +52,20 @@ public class GlobalExceptionHandler {
                                 .toList()
                         )
                 );
+    }
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ResponseEntity<ApiError> handleProductNotFound(
+            ProductNotFoundException e,
+            HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiError(
+                        Instant.now(),
+                        HttpStatus.NOT_FOUND.value(),
+                        HttpStatus.NOT_FOUND.getReasonPhrase(),
+                        e.getMessage(),
+                        request.getRequestURI(),
+                        null
+                ));
     }
 }
