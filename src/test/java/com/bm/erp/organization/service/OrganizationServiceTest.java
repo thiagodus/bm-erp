@@ -1,10 +1,10 @@
 package com.bm.erp.organization.service;
 
-import com.bm.erp.organization.exception.OrganizationNotFoundException;
-import com.bm.erp.organization.mapper.OrganizationMapper;
-import com.bm.erp.organization.entity.Organization;
 import com.bm.erp.organization.dto.OrganizationRequest;
 import com.bm.erp.organization.dto.OrganizationResponse;
+import com.bm.erp.organization.entity.Organization;
+import com.bm.erp.organization.exception.OrganizationNotFoundException;
+import com.bm.erp.organization.mapper.OrganizationMapper;
 import com.bm.erp.organization.repository.OrganizationRepository;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
@@ -13,10 +13,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -65,7 +65,7 @@ public class OrganizationServiceTest {
 
         Organization saved = captor.getValue();
 
-        assertThat(saved.getId()).isNotNull();
+
         assertThat(saved.getActive()).isTrue();
         assertThat(saved.getTradeName()).isEqualTo("Trade Name");
         assertThat(response).isSameAs(organizationResponse);

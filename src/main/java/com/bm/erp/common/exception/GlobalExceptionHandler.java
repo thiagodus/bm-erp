@@ -3,6 +3,7 @@ package com.bm.erp.common.exception;
 import com.bm.erp.common.response.ApiError;
 import com.bm.erp.common.response.FieldErrorResponse;
 import com.bm.erp.customer.exception.CustomerNotFoundException;
+import com.bm.erp.order.exception.OrderNotFoundException;
 import com.bm.erp.organization.exception.OrganizationNotFoundException;
 import com.bm.erp.product.exception.ProductNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +30,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomerNotFoundException.class)
     public ResponseEntity<ApiError> handleCustomerNotFound(CustomerNotFoundException e, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiError(Instant.now(),
+                        HttpStatus.NOT_FOUND.value(),
+                        HttpStatus.NOT_FOUND.getReasonPhrase(),
+                        e.getMessage(),
+                        request.getRequestURI(),
+                        null));
+    }
+
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<ApiError> handleOrderNotFound(OrderNotFoundException e, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ApiError(Instant.now(),
                         HttpStatus.NOT_FOUND.value(),
