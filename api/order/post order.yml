@@ -1,0 +1,38 @@
+info:
+  name: post order
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:8080/orders
+  body:
+    type: json
+    data: |-
+      {
+        "customerId": "b0dee54f-d2b3-4797-9e8d-291b6792cd7c",
+        "notes": "Order for embroidered shirts",
+        "items": [
+          {
+            "productId": "58b4e40f-2bae-416b-8c1c-9bd087f25eb9",
+            "quantity": 10,
+            "unitPrice": 25.00,
+            "notes": "White shirts"
+          },
+          {
+            "productId": "4c22c719-ad2a-4fbe-a225-69ee33d38e02",
+            "quantity": 5,
+            "unitPrice": 40.00,
+            "notes": "Black shirts"
+          }
+        ]
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlcnAuY29tIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzg2NjQ2NDYwLCJleHAiOjE3ODY2NTAwNjB9.451BnA_InOnJ8UCxm2PzSU8VzkrM5s0Eixdc3_Dk6So
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

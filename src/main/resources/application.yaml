@@ -21,3 +21,6 @@ jwt:
 logging:
   level:
     org.springframework.security: DEBUG
+
+nfe:
+  base-url: https://jsonplaceholder.typicode.com

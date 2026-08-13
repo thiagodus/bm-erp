@@ -1,11 +1,11 @@
 info:
-  name: http://localhost:8080/orders
+  name: test post
   type: http
-  seq: 1
+  seq: 2
 
 http:
   method: POST
-  url: ""
+  url: http://localhost:8080/test/nfe
   auth: inherit
 
 settings:

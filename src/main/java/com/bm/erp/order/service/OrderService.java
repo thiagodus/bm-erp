@@ -108,4 +108,9 @@ public class OrderService {
         return  orderMapper.toResponse(saved);
 
     }
+
+    public Order findEntityById(UUID id) {
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException());
+    }
 }
