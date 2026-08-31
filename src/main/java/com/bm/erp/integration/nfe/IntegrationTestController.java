@@ -1,7 +1,7 @@
 package com.bm.erp.integration.nfe;
 
 import com.bm.erp.integration.nfe.dto.NfeResponse;
-import com.bm.erp.order.entity.Order;
+import com.bm.erp.integration.nfe.service.NfeService;
 import com.bm.erp.order.service.OrderService;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,10 +23,6 @@ import java.util.UUID;
 
     @PostMapping("/nfe/{orderId}")
     public NfeResponse issueInvoice(@PathVariable UUID orderId) {
-
-        Order order = orderService.findEntityById(orderId);
-
-
-        return nfeService.issueInvoice(order);
+         return nfeService.issueInvoice(orderId);
     }
 }

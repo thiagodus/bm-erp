@@ -1,4 +1,4 @@
-package com.bm.erp.integration.nfe;
+package com.bm.erp.integration.nfe.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

@@ -1,0 +1,27 @@
+info:
+  name: fake boleto
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:8080/test-provider/boletos
+  headers:
+    - name: Idempotency-Key
+      value: fd059fe6-abfb-4ffd-82ac-84cdcbbb6a6c:boleto
+  body:
+    type: json
+    data: |-
+      {
+        "orderId": "fd059fe6-abfb-4ffd-82ac-84cdcbbb6a6b",
+        "dueDate": "2026-08-31"
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlcnAuY29tIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzg3NzYzNTUxLCJleHAiOjE3ODc3NjcxNTF9.P4cO0NyGYlkCHlJr7Zb6g3LMNnbe1HoypIkV6bHB1Hw
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
