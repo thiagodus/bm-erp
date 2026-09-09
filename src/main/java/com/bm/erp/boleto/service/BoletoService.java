@@ -5,10 +5,13 @@ import com.bm.erp.boleto.dto.BoletoResponse;
 import com.bm.erp.boleto.dto.BoletoWebhookRequest;
 import com.bm.erp.boleto.entity.Boleto;
 import com.bm.erp.boleto.entity.BoletoStatus;
+import com.bm.erp.boleto.exception.BoletoNotFoundException;
 import com.bm.erp.boleto.repository.BoletoRepository;
 import com.bm.erp.integration.boleto.client.BoletoClient;
 import com.bm.erp.order.entity.Order;
+import com.bm.erp.order.entity.OrderStatus;
 import com.bm.erp.order.service.OrderService;
+import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +51,7 @@ public class BoletoService {
         boleto.setAmount(order.getTotal());
         boleto.setDueDate(dueDate);
         boleto.setExternalId(boletoResponse.externalId());
-        boleto.setStatus(BoletoStatus.valueOf(boletoResponse.status()));
+        //boleto.setStatus(BoletoStatus.valueOf(boletoResponse.status()));
 
         Boleto result;
 
@@ -64,15 +67,21 @@ public class BoletoService {
         return result;
     }
 
+    @Transactional
     public void processWebhook(BoletoWebhookRequest request){
-        Optional<Boleto> boleto = boletoRepository.findByExternalId(request.externalId());
-        if(boleto.isEmpty()){
-           //log
-            return;
+        Boleto boleto = boletoRepository.findByExternalId(request.externalId())
+                .orElseThrow(BoletoNotFoundException::new);
+
+        BoletoStatus incomingStatus = BoletoStatus.valueOf(request.status());
+
+        if(incomingStatus == BoletoStatus.PAID){
+            boleto.markAsPaid();
+            boleto.getOrder().setStatus(OrderStatus.CLOSED);
+        }else if(incomingStatus == BoletoStatus.CANCELLED){
+            boleto.cancel();
         }
-        Boleto boletoFound = boleto.get();
-        boletoFound.setStatus(BoletoStatus.valueOf(request.status()));
-        boletoRepository.save(boletoFound);
+
+        boletoRepository.save(boleto);
 
 
     }

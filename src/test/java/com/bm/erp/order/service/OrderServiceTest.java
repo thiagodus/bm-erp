@@ -3,6 +3,7 @@ package com.bm.erp.order.service;
 import com.bm.erp.customer.entity.Customer;
 import com.bm.erp.customer.exception.CustomerNotFoundException;
 import com.bm.erp.customer.repository.CustomerRepository;
+import com.bm.erp.integration.messaging.OrderEventProducer;
 import com.bm.erp.order.dto.OrderItemRequest;
 import com.bm.erp.order.dto.OrderItemResponse;
 import com.bm.erp.order.dto.OrderRequest;
@@ -10,6 +11,7 @@ import com.bm.erp.order.dto.OrderResponse;
 import com.bm.erp.order.entity.Order;
 import com.bm.erp.order.entity.OrderItem;
 import com.bm.erp.order.entity.OrderStatus;
+import com.bm.erp.order.event.OrderCreatedEvent;
 import com.bm.erp.order.mapper.OrderMapper;
 import com.bm.erp.order.repository.OrderRepository;
 import com.bm.erp.product.entity.Product;
@@ -55,6 +57,9 @@ public class OrderServiceTest {
     @Mock
     private OrderRepository orderRepository;
 
+    @Mock
+    private OrderEventProducer orderEventProducer;
+
     @InjectMocks
     private OrderService orderService;
 
@@ -69,6 +74,7 @@ public class OrderServiceTest {
 
     private Order getOrder(boolean anonymous) {
         Order order = new Order();
+        order.setId(UUID.randomUUID());
         if(!anonymous){
             order.setCustomer(customer);
         }
@@ -146,6 +152,9 @@ public class OrderServiceTest {
     public void shouldCreateOrder() {
         //Arrange
 
+        customer.setId(customerId);
+        customer.setName("Customer");
+
         OrderRequest orderRequest = getOrderRequest(customerId);
         OrderItemRequest item1 = orderRequest.items().get(0);
         OrderItemRequest item2 = orderRequest.items().get(1);
@@ -168,8 +177,16 @@ public class OrderServiceTest {
 
         //Act
         OrderResponse savedOrder = orderService.save(orderRequest);
+        ArgumentCaptor<OrderCreatedEvent> eventCaptor = ArgumentCaptor.forClass(OrderCreatedEvent.class);
 
         //Assert
+        verify(orderEventProducer).publish(eventCaptor.capture());
+        OrderCreatedEvent orderCreatedEvent = eventCaptor.getValue();
+        assertThat(orderCreatedEvent.orderId()).isEqualTo(order.getId());
+        assertThat(orderCreatedEvent.customerId()).isEqualTo(customerId);
+        assertThat(orderCreatedEvent.customerName()).isEqualTo("Customer");
+        assertThat(orderCreatedEvent.total()).isEqualByComparingTo(new BigDecimal("13.00"));
+
         verify(orderRepository).save(orderArgumentCaptor.capture());
         Order orderCaptured = orderArgumentCaptor.getValue();
 
@@ -248,8 +265,12 @@ public class OrderServiceTest {
 
         //Act
         OrderResponse saved = orderService.save(orderRequest);
+        ArgumentCaptor<OrderCreatedEvent> eventCaptor = ArgumentCaptor.forClass(OrderCreatedEvent.class);
+        verify(orderEventProducer).publish(eventCaptor.capture());
+        OrderCreatedEvent orderCreatedEvent = eventCaptor.getValue();
 
         //Assert
+        assertThat(orderCreatedEvent.customerId()).isNull();
         assertThat(orderRepository.save(order));
         verifyNoInteractions(customerRepository);
     }

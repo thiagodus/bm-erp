@@ -10,6 +10,7 @@ import com.bm.erp.order.dto.OrderUpdateRequest;
 import com.bm.erp.order.entity.Order;
 import com.bm.erp.order.entity.OrderItem;
 import com.bm.erp.order.entity.OrderStatus;
+import com.bm.erp.order.event.OrderCreatedEvent;
 import com.bm.erp.order.exception.OrderNotEditableException;
 import com.bm.erp.order.exception.OrderNotFoundException;
 import com.bm.erp.order.mapper.OrderMapper;
@@ -17,11 +18,17 @@ import com.bm.erp.order.repository.OrderRepository;
 import com.bm.erp.product.entity.Product;
 import com.bm.erp.product.exception.ProductNotFoundException;
 import com.bm.erp.product.repository.ProductRepository;
+import org.jspecify.annotations.NonNull;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -30,27 +37,35 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
+    //private final OrderEventProducer orderEventProducer;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-    public OrderService(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, OrderMapper orderMapper) {
+    public OrderService(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, OrderMapper orderMapper, ApplicationEventPublisher applicationEventPublisher ) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
         this.orderMapper = orderMapper;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
 
     @Transactional
     public OrderResponse save(OrderRequest orderRequest) {
         Customer customer = null;
+
         if(orderRequest.customerId() != null){
             customer = customerRepository.findById(orderRequest.customerId()).orElseThrow(CustomerNotFoundException::new);
         }
 
         Order order = orderMapper.toEntity(orderRequest, customer);
 
+        Map<UUID, Product> orderProductMap = fetchProductsMap(orderRequest.items());
 
         for(OrderItemRequest itemRequest : orderRequest.items()){
-            Product product = productRepository.findById(itemRequest.productId()).orElseThrow(ProductNotFoundException::new);
+            Product product = orderProductMap.get(itemRequest.productId());
+            if(product == null){
+                throw new ProductNotFoundException();
+            }
             OrderItem orderItem = orderMapper.toEntity(itemRequest, product);
             order.addItem(orderItem);
         }
@@ -59,10 +74,21 @@ public class OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
+        OrderCreatedEvent orderCreatedEvent = new OrderCreatedEvent(
+                savedOrder.getId(),
+                customer == null ? null : savedOrder.getCustomer().getId(),
+                customer == null ? null : savedOrder.getCustomer().getName(),
+                savedOrder.getTotal()
+        );
+
+        applicationEventPublisher.publishEvent(orderCreatedEvent);
+
         return  orderMapper.toResponse(savedOrder);
 
 
     }
+
+
 
     public OrderResponse findById(UUID orderId){
         Order order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
@@ -95,8 +121,13 @@ public class OrderService {
 
         order.getItems().clear();
 
+        Map<UUID, Product> orderProductMap = fetchProductsMap(request.items());
+
         for(OrderItemRequest itemRequest : request.items()){
-            Product product = productRepository.findById(itemRequest.productId()).orElseThrow(ProductNotFoundException::new);
+            Product product = orderProductMap.get(itemRequest.productId());
+            if(product == null){
+                throw new ProductNotFoundException();
+            }
             OrderItem orderItem = orderMapper.toEntity(itemRequest, product);
             order.addItem(orderItem);
         }
@@ -112,5 +143,18 @@ public class OrderService {
     public Order findEntityById(UUID id) {
         return orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException());
+    }
+
+    private @NonNull Map<UUID, Product> fetchProductsMap(List<OrderItemRequest> items) {
+        Set<UUID> productIds = items
+                .stream()
+                .map(OrderItemRequest::productId)
+                .collect(Collectors.toSet());
+
+        Map<UUID, Product> orderProductMap = productRepository
+                .findAllById(productIds)
+                .stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
+        return orderProductMap;
     }
 }
