@@ -3,7 +3,6 @@ package com.bm.erp.order.service;
 import com.bm.erp.customer.entity.Customer;
 import com.bm.erp.customer.exception.CustomerNotFoundException;
 import com.bm.erp.customer.repository.CustomerRepository;
-import com.bm.erp.integration.messaging.OrderEventProducer;
 import com.bm.erp.order.dto.OrderItemRequest;
 import com.bm.erp.order.dto.OrderItemResponse;
 import com.bm.erp.order.dto.OrderRequest;
@@ -14,6 +13,7 @@ import com.bm.erp.order.entity.OrderStatus;
 import com.bm.erp.order.event.OrderCreatedEvent;
 import com.bm.erp.order.mapper.OrderMapper;
 import com.bm.erp.order.repository.OrderRepository;
+import com.bm.erp.outbox.service.OutboxService;
 import com.bm.erp.product.entity.Product;
 import com.bm.erp.product.exception.ProductNotFoundException;
 import com.bm.erp.product.repository.ProductRepository;
@@ -27,9 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -57,8 +55,11 @@ public class OrderServiceTest {
     @Mock
     private OrderRepository orderRepository;
 
+    //@Mock
+    //private OrderEventProducer orderEventProducer;
+
     @Mock
-    private OrderEventProducer orderEventProducer;
+    private OutboxService  outboxService;
 
     @InjectMocks
     private OrderService orderService;
@@ -163,12 +164,16 @@ public class OrderServiceTest {
         OrderItem orderItem2 = getOrderItem2();
         OrderResponse orderResponse = getOrderResponse(
                 getOrderItemResponse1(), getOrderItemResponse2());
+        Set<UUID> productIds = new HashSet<>();
+        product1.setId(productId1);
+        product2.setId(productId2);
+        productIds.add(productId1);
+        productIds.add(productId2);
 
         when(customerRepository.findById(orderRequest.customerId()))
                 .thenReturn(Optional.of(customer));
         when(orderMapper.toEntity(orderRequest, customer)).thenReturn(order);
-        when(productRepository.findById(productId1)).thenReturn(Optional.of(product1));
-        when(productRepository.findById(productId2)).thenReturn(Optional.of(product2));
+        when(productRepository.findAllById(productIds)).thenReturn(List.of(product1, product2));
         when(orderMapper.toResponse(order)).thenReturn(orderResponse);
         when (orderMapper.toEntity(item1, product1)).thenReturn(orderItem1);
         when (orderMapper.toEntity(item2, product2)).thenReturn(orderItem2);
@@ -180,7 +185,8 @@ public class OrderServiceTest {
         ArgumentCaptor<OrderCreatedEvent> eventCaptor = ArgumentCaptor.forClass(OrderCreatedEvent.class);
 
         //Assert
-        verify(orderEventProducer).publish(eventCaptor.capture());
+        verify(outboxService).saveEvent(eq("ORDER"), eq(order.getId().toString()), eventCaptor.capture());
+       //h(eventCaptor.capture());
         OrderCreatedEvent orderCreatedEvent = eventCaptor.getValue();
         assertThat(orderCreatedEvent.orderId()).isEqualTo(order.getId());
         assertThat(orderCreatedEvent.customerId()).isEqualTo(customerId);
@@ -266,7 +272,7 @@ public class OrderServiceTest {
         //Act
         OrderResponse saved = orderService.save(orderRequest);
         ArgumentCaptor<OrderCreatedEvent> eventCaptor = ArgumentCaptor.forClass(OrderCreatedEvent.class);
-        verify(orderEventProducer).publish(eventCaptor.capture());
+        //verify(orderEventProducer).publish(eventCaptor.capture());
         OrderCreatedEvent orderCreatedEvent = eventCaptor.getValue();
 
         //Assert

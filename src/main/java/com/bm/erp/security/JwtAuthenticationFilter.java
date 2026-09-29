@@ -1,35 +1,39 @@
 package com.bm.erp.security;
 
 import com.bm.erp.service.JwtService;
-import com.bm.erp.user.entity.User;
-import com.bm.erp.user.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
-    private final UserRepository userRepository;
+
 
     public JwtAuthenticationFilter(
-            JwtService jwtService,
-            UserRepository userRepository) {
+            JwtService jwtService) {
 
         this.jwtService = jwtService;
-        this.userRepository = userRepository;
+
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
         System.out.println(
                 "JWT FILTER: " +
                         request.getMethod() +
@@ -38,8 +42,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         );
 
         String authorization = request.getHeader("Authorization");
-        System.out.println("AUTH HEADER: " + authorization);
-
 
         if (authorization == null || !authorization.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -48,32 +50,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = authorization.substring(7);
 
-        System.out.println("TOKEN VALID: " + jwtService.isValid(token));
 
-        if (!jwtService.isValid(token)) {
+
+        Claims claims;
+        try{
+            claims = jwtService.extractAllClaims(token);
+        }catch(JwtException | IllegalArgumentException e){
             filterChain.doFilter(request, response);
             return;
         }
 
-        String email = jwtService.extractEmail(token);
+        String email = claims.getSubject();
+        String role = claims.get("role", String.class);
 
-        User user = userRepository.findByEmail(email)
-                .orElse(null);
+        List<GrantedAuthority> grantedAuthorities = List.of(new SimpleGrantedAuthority("ROLE_"+role));
 
-        if (user != null) {
-
-            UserDetails userDetails =
-                    org.springframework.security.core.userdetails
-                            .User.withUsername(user.getEmail())
-                            .password(user.getPassword())
-                            .roles(user.getRole().name())
-                            .build();
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
-                            userDetails,
+                            email,
                             null,
-                            userDetails.getAuthorities()
+                            grantedAuthorities
                     );
 
 
@@ -81,7 +78,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .getContext()
                     .setAuthentication(authentication);
 
-        }
+
 
         filterChain.doFilter(request, response);
     }

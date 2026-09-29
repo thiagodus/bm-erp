@@ -54,4 +54,7 @@ public class Product {
 
     @LastModifiedDate
     private Instant updatedAt;
+
+    @Column(length = 50)
+    private String sku;
 }

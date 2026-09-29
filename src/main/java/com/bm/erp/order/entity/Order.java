@@ -54,6 +54,9 @@ public class Order {
     @LastModifiedDate
     private Instant updatedAt;
 
+    @Column(length = 100)
+    private String externalId;
+
     public void addItem(OrderItem item) {
         items.add(item);
         item.setOrder(this);

@@ -1,25 +1,11 @@
 spring:
-  kafka:
-    bootstrap-servers: localhost:9092
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
-    consumer:
-      group-id: erp
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
-      properties:
-        "[spring.json.value.default.type]": com.bm.erp.order.event.OrderCreatedEvent
-        "[spring.json.trusted.packages]": com.bm.erp.order.event
-
   application:
     name: erp
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/bm_erp
-    username: postgres
-    password: postgres
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/bm_erp}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
 
   jpa:
     hibernate:
@@ -28,14 +14,32 @@ spring:
   flyway:
     enabled: true
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+    consumer:
+      group-id: erp
+      auto-offset-reset: earliest
+      key-serializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+      properties:
+        "[spring.json.value.default.type]": com.bm.erp.order.event.OrderCreatedEvent
+        "[spring.json.trusted.packages]": com.bm.erp.order.event
+
 jwt:
-  secret: +7a7w/+pB2UO4Ac68p7KW8LGzLbYxKS4/l5OShC3T7E=
+  secret: ${JWT_SECRET:plus-seven-a-seven-dummy-secret-key-for-local-dev-only-32bytes}
   expiration: 3600000
 
 logging:
   level:
     org.springframework.security: DEBUG
 
-
 nfe:
-  base-url: https://jsonplaceholder.typicode.com
+  base-url: ${NFE_BASE_URL:https://jsonplaceholder.typicode.com}
+
+salesforce:
+  auth-url: ${SALESFORCE_AUTH_URL:https://login.salesforce.com/services/oauth2/token}
+  client-id: ${SALESFORCE_CLIENT_ID:dummy-client-id}
+  client-secret: ${SALESFORCE_CLIENT_SECRET:dummy-client-secret}

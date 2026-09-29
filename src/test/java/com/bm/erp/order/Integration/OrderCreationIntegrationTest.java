@@ -6,6 +6,8 @@ import com.bm.erp.order.dto.OrderRequest;
 import com.bm.erp.order.entity.Order;
 import com.bm.erp.order.event.OrderCreatedEvent;
 import com.bm.erp.order.repository.OrderRepository;
+import com.bm.erp.outbox.entity.OutboxEvent;
+import com.bm.erp.outbox.repository.OutboxRepository;
 import com.bm.erp.product.entity.Product;
 import com.bm.erp.product.entity.ProductCategory;
 import com.bm.erp.product.entity.ProductType;
@@ -60,6 +62,9 @@ public class OrderCreationIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private OutboxRepository  outboxRepository;
+
     @Test
     @WithMockUser
     void createsOrderAndPublishesEvent() throws Exception {
@@ -84,6 +89,9 @@ public class OrderCreationIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(orderRequest)))
                 .andExpect(status().isCreated());
+
+        List<OutboxEvent> outboxEvents = outboxRepository.findAll();
+        assertThat(outboxEvents).hasSize(1);
 
         Order persistedOrder = orderRepository.findAll()
                 .stream()

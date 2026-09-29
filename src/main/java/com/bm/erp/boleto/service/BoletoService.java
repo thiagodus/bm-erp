@@ -10,8 +10,10 @@ import com.bm.erp.boleto.repository.BoletoRepository;
 import com.bm.erp.integration.boleto.client.BoletoClient;
 import com.bm.erp.order.entity.Order;
 import com.bm.erp.order.entity.OrderStatus;
+import com.bm.erp.order.event.OrderPaidEvent;
 import com.bm.erp.order.service.OrderService;
 import jakarta.transaction.Transactional;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -24,11 +26,16 @@ public class BoletoService {
     private final BoletoRepository boletoRepository;
     private final OrderService orderService;
     private final BoletoClient boletoClient;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-    public BoletoService(BoletoRepository boletoRepository, OrderService orderService,  BoletoClient boletoClient) {
+    public BoletoService(BoletoRepository boletoRepository,
+                         OrderService orderService,
+                         BoletoClient boletoClient,
+                         ApplicationEventPublisher applicationEventPublisher) {
         this.boletoRepository = boletoRepository;
         this.orderService = orderService;
         this.boletoClient = boletoClient;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     public Boleto create(UUID orderId, LocalDate dueDate){
@@ -76,7 +83,16 @@ public class BoletoService {
 
         if(incomingStatus == BoletoStatus.PAID){
             boleto.markAsPaid();
-            boleto.getOrder().setStatus(OrderStatus.CLOSED);
+            Order order = boleto.getOrder();
+            order.setStatus(OrderStatus.CLOSED);
+
+            //Publish domain event
+            applicationEventPublisher.publishEvent(new OrderPaidEvent(
+                    order.getId(),
+                    order.getExternalId(),
+                    order.getTotal()
+            ));
+
         }else if(incomingStatus == BoletoStatus.CANCELLED){
             boleto.cancel();
         }

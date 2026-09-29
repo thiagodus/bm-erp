@@ -15,11 +15,11 @@ import com.bm.erp.order.exception.OrderNotEditableException;
 import com.bm.erp.order.exception.OrderNotFoundException;
 import com.bm.erp.order.mapper.OrderMapper;
 import com.bm.erp.order.repository.OrderRepository;
+import com.bm.erp.outbox.service.OutboxService;
 import com.bm.erp.product.entity.Product;
 import com.bm.erp.product.exception.ProductNotFoundException;
 import com.bm.erp.product.repository.ProductRepository;
 import org.jspecify.annotations.NonNull;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,14 +38,16 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
     //private final OrderEventProducer orderEventProducer;
-    private final ApplicationEventPublisher applicationEventPublisher;
+    //private final ApplicationEventPublisher applicationEventPublisher;
+    private final OutboxService outboxService;
 
-    public OrderService(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, OrderMapper orderMapper, ApplicationEventPublisher applicationEventPublisher ) {
+    public OrderService(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, OrderMapper orderMapper,  OutboxService outboxService) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
         this.orderMapper = orderMapper;
-        this.applicationEventPublisher = applicationEventPublisher;
+        this.outboxService = outboxService;
+
     }
 
 
@@ -81,7 +83,8 @@ public class OrderService {
                 savedOrder.getTotal()
         );
 
-        applicationEventPublisher.publishEvent(orderCreatedEvent);
+        //applicationEventPublisher.publishEvent(orderCreatedEvent);
+        outboxService.saveEvent("ORDER", order.getId().toString(), orderCreatedEvent);
 
         return  orderMapper.toResponse(savedOrder);
 

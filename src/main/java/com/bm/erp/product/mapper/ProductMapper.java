@@ -16,6 +16,7 @@ public class ProductMapper {
         product.setCategory(request.category());
         product.setSalePrice(request.salePrice());
         product.setCostPrice(request.costPrice());
+        product.setSku(request.sku());
 
         return product;
     }

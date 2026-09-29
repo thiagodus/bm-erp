@@ -5,11 +5,25 @@ info:
 
 http:
   method: POST
-  url: ""
-  auth: inherit
+  url: http://localhost:8080/product
+  body:
+    type: json
+    data: |-
+      {
+        "name": "ERP Cloud License",
+        "sku": "SF-LIC-001",
+        "type": "PRODUCT",
+        "category": "OTHER",
+        "salePrice": 150.00,
+        "costPrice": 50.00
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlcnAuY29tIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzkwNjIzMzUwLCJleHAiOjE3OTA2MjY5NTB9.2oD11BGiOAhwqzx1Nk8UyDp1DfdAh5kwlc2JOLseCvk
 
 settings:
   encodeUrl: true
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true

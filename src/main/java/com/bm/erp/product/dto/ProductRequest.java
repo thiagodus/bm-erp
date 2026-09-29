@@ -12,6 +12,8 @@ public record ProductRequest(
         @NotBlank
         String name,
 
+        String sku,
+
         String description,
 
         @NotNull
