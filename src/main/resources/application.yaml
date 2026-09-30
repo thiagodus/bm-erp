@@ -2,6 +2,11 @@ spring:
   application:
     name: erp
 
+  rabbitmq:
+    addresses: ${SPRING_RABBITMQ_ADDRESSES:amqp://guest:guest@localhost:5672}
+    template:
+      default-receive-queue: order-created-queue
+
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/bm_erp}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}

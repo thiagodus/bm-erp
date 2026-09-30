@@ -1,6 +1,7 @@
 package com.bm.erp.outbox.repository;
 
 import com.bm.erp.outbox.entity.OutboxEvent;
+import com.bm.erp.outbox.entity.OutboxStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,4 +18,6 @@ public interface OutboxRepository extends JpaRepository<OutboxEvent, UUID> {
         FOR UPDATE SKIP LOCKED
         """, nativeQuery = true)
     List<OutboxEvent> findPendingEventsForProcessing(Pageable pageable);
+
+    List<OutboxEvent> findByStatusOrderByCreatedAtAsc(OutboxStatus status);
 }
