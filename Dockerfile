@@ -9,6 +9,9 @@ WORKDIR /app
 COPY mvnw mvnw.cmd pom.xml ./
 COPY .mvn .mvn
 
+# Grant executable permission to the Maven wrapper script
+RUN chmod +x ./mvnw
+
 # Download dependencies offline to speed up subsequent builds
 RUN ./mvnw dependency:go-offline -B
 
