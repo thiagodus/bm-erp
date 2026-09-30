@@ -17,7 +17,7 @@ RUN ./mvnw dependency:go-offline -B
 
 # Copy project source code and build the final executable JAR
 COPY src ./src
-RUN ./mvnw clean package -DskipTests -B
+RUN ./mvnw clean package -Dmaven.test.skip=true -B
 
 # ==========================================
 # STAGE 2: Lightweight, Secure Production Runtime
